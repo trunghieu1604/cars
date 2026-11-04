@@ -1,44 +1,57 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0b0f19" />
-    <title>CarPlay Multi-Screen Dashboard</title>
-    <script>
-      // Fallback khi chạy web tĩnh (GitHub Pages hoặc mở file trực tiếp) không có backend
-      (function() {
-        const DEFAULT_VIDEOS = [
-          { videoId: "8zMvJRwWw8Q", title: "LIÊN KHÚC TÚY CA - VẠN LÝ SẦU | AI Remix EDM/Vinahouse Cực Gắt", thumbnail: "https://i.ytimg.com/vi/8zMvJRwWw8Q/hq720.jpg", author: "Nhạc Cover AI", duration: "10:55", views: 2600000, ago: "Mới nhất" },
-          { videoId: "KnxuMH12tMM", title: "NHẠC REMIX TIKTOK TRIỆU VIEW - BXH Nhạc Trẻ Remix Hay Nhất", thumbnail: "https://i.ytimg.com/vi/KnxuMH12tMM/hq720.jpg", author: "H2O Remix", duration: "1:07:20", views: 250000, ago: "Mới nhất" },
-          { videoId: "SBKL6einlO8", title: "NHẠC TREND TIKTOK REMIX | NONSTOP VIỆT MIX BASS CỰC MẠNH", thumbnail: "https://i.ytimg.com/vi/SBKL6einlO8/hq720.jpg", author: "Việt Mix TV", duration: "1:08:05", views: 180000, ago: "Mới nhất" },
-          { videoId: "XqdYMbKiBoY", title: "Không Môn Đăng Hộ Đối (ChaChaCha Hot Tiktok) - Version Cực Cháy", thumbnail: "https://i.ytimg.com/vi/XqdYMbKiBoY/hq720.jpg", author: "My Music", duration: "1:19:51", views: 680000, ago: "Mới nhất" },
-          { videoId: "Q-O9t8P7E-s", title: "Tái Sinh Remix ♫ BXH Nhạc Trẻ EDM Hot Trend TRIỆU VIEW", thumbnail: "https://i.ytimg.com/vi/Q-O9t8P7E-s/hq720.jpg", author: "AT EDM", duration: "1:20:31", views: 50000000, ago: "Hot trend" }
-        ];
 
-        const origFetch = window.fetch;
-        window.fetch = async function(resource, init) {
-          if (typeof resource === 'string' && resource.startsWith('/api/yt-search')) {
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b0f19" />
+  <title>CarPlay Multi-Screen Dashboard</title>
+  <script>
+    // Smart API Fallback:
+    // 1. Khi chạy ở Local (node server.js): gọi API trực tiếp trên máy tính
+    // 2. Khi chạy trên GitHub Pages (web tĩnh): kết nối API online để tìm kiếm bài hát thật
+    (function () {
+      const ONLINE_API = 'https://duoscreen.vercel.app';
+
+      const origFetch = window.fetch;
+      window.fetch = async function (resource, init) {
+        if (typeof resource === 'string' && resource.startsWith('/api/')) {
+          if (window.location.protocol !== 'file:') {
             try {
               const res = await origFetch(resource, init);
               if (res.ok) return res;
-            } catch (e) {}
-            return new Response(JSON.stringify({ videos: DEFAULT_VIDEOS }), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' }
-            });
+            } catch (e) { }
           }
-          return origFetch.apply(this, arguments);
+          try {
+            return await origFetch(ONLINE_API + resource, init);
+          } catch (e) { }
+        }
+        return origFetch.apply(this, arguments);
+      };
+
+      const OrigAudio = window.Audio;
+      if (OrigAudio) {
+        window.Audio = function (src) {
+          if (typeof src === 'string' && src.startsWith('/api/')) {
+            if (window.location.protocol === 'file:' || window.location.hostname.endsWith('github.io')) {
+              src = ONLINE_API + src;
+            }
+          }
+          return new OrigAudio(src);
         };
-      })();
-    </script>
-    <script type="module" crossorigin src="./assets/index-CEPtK5DM.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-zbW6_Wsq.css">
-  </head>
-  <body class="bg-black select-none">
-    <div id="root"></div>
-  </body>
+        window.Audio.prototype = OrigAudio.prototype;
+      }
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/index-CEPtK5DM.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-zbW6_Wsq.css">
+</head>
+
+<body class="bg-black select-none">
+  <div id="root"></div>
+</body>
+
 </html>
