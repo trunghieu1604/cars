@@ -1,0 +1,27 @@
+{
+  "name": "duoscreen-carplay-dashboard",
+  "version": "1.0.0",
+  "description": "CarPlay Multi-Screen Dashboard - Cockpit HUD, GPS Navigation, YouTube Player & VTV Live",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "carplay",
+    "dashboard",
+    "multiscreen",
+    "speedometer",
+    "hud",
+    "maps",
+    "youtube"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "yt-search": "^2.12.1"
+  }
+}
+
